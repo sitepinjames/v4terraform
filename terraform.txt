@@ -1,0 +1,227 @@
+provider "aws" {
+  region = "us-east-1"  # Adjust based on your AWS region
+}
+
+variable "key_name" {
+  default = "v4migration"  # Replace with the name of your key pair in AWS
+}
+
+variable "vpc_id" {
+  default = "vpc-0529b2ecd8cca6502"  # Your VPC ID
+}
+
+variable "subnet_ids" {
+  default = ["subnet-0a65a41bb9b007e3d"]  # Replace with your Subnet IDs
+}
+
+variable "instance_count" {
+  default = 5  # Number of instances per environment
+}
+variable "instance_count-windows" {
+  default = 3  # Number of instances per environment
+}
+variable "instance_count-nginx" {
+  default = 2  # Number of instances per environment
+}
+variable "instance_count-drupal" {
+  default = 2  # Number of instances per environment
+}
+variable "instance_count-serco" {
+  default = 3  # Number of instances per environment
+}
+variable "instance_count-ps" {
+  default = 3  # Number of instances per environment
+}
+variable "instance_count-jenkins" {
+  default = 1  # Number of instances per environment
+}
+variable "instance_count-datbase1" {
+  default = 1  # Number of instances per environment
+}
+variable "instance_count-datbase2" {
+  default = 1  # Number of instances per environment
+}
+variable "instance_type" {
+  default = "t2.micro"  # Instance type
+}
+
+variable "ami_id" {
+  default = "ami-0fff1b9a61dec8a5f"  # Amazon Linux 2 AMI
+}
+variable "ami_id-windows" {
+  default = "ami-0324a83b82023f0b3"  # windows 2 AMI
+}
+
+variable "envs" {
+  default = ["dev", "tes", "imp", "trn","pro"]  # List of environments
+}
+variable "envs2" {
+  default = ["tns","sha"]  # List of environments
+}
+variable "envs3" {
+  default = ["dev", "imp", "trn"]  # List of environments
+}
+resource "aws_instance" "env_instances" {
+  count         = length(var.envs2) * var.instance_count
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_name  # Use your key pair for SSH access
+  
+
+  # Assign the instances to the appropriate subnets
+  subnet_id = element(var.subnet_ids, count.index % length(var.subnet_ids))
+
+  tags = {
+    "Name" = "${element(var.envs2, floor(count.index / var.instance_count))}-instance-${count.index % var.instance_count + 1}"
+    "Env"  = element(var.envs2, floor(count.index / var.instance_count))
+    "Platform"= "Linux"
+  }
+  ####################################################################################################
+}
+resource "aws_instance" "env_instances2-windows" {
+  count         = length(var.envs) * var.instance_count-windows
+  ami           = var.ami_id-windows
+  instance_type = var.instance_type
+  key_name      = var.key_name  # Use your key pair for SSH access
+  
+
+  # Assign the instances to the appropriate subnets
+  subnet_id = element(var.subnet_ids, count.index % length(var.subnet_ids))
+
+  tags = {
+    "Name" = "${element(var.envs, floor(count.index / var.instance_count-windows))}-instance-${count.index % var.instance_count-windows + 1}-windows"
+    "Env"  = element(var.envs, floor(count.index / var.instance_count-windows))
+    "Platform"= "Windows"
+  }
+  ######################################################################################################################################################3
+}
+resource "aws_instance" "env_instances-nginx" {
+  count         = length(var.envs) * var.instance_count-nginx
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_name  # Use your key pair for SSH access
+  
+
+  # Assign the instances to the appropriate subnets
+  subnet_id = element(var.subnet_ids, count.index % length(var.subnet_ids))
+
+  tags = {
+    "Name" = "${element(var.envs, floor(count.index / var.instance_count-nginx))}-instance-Nginx-${count.index % var.instance_count-nginx + 1}"
+    "Env"  = element(var.envs, floor(count.index / var.instance_count-nginx))
+    "Platform"= "Linux"
+    "App"="nginx"
+  }
+}
+#####################################################################################################################################################
+resource "aws_instance" "env_instances-drupal" {
+  count         = length(var.envs) * var.instance_count-drupal
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_name  # Use your key pair for SSH access
+  
+
+  # Assign the instances to the appropriate subnets
+  subnet_id = element(var.subnet_ids, count.index % length(var.subnet_ids))
+
+  tags = {
+    "Name" = "${element(var.envs, floor(count.index / var.instance_count-drupal))}-instance-drupal-${count.index % var.instance_count-drupal + 1}"
+    "Env"  = element(var.envs, floor(count.index / var.instance_count-drupal))
+    "Platform"= "Linux"
+    "App"="drupal"
+  }
+}
+########################################################################################################################################################
+resource "aws_instance" "env_instances-psusers" {
+  count         = length(var.envs) * var.instance_count-ps
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_name  # Use your key pair for SSH access
+  
+
+  # Assign the instances to the appropriate subnets
+  subnet_id = element(var.subnet_ids, count.index % length(var.subnet_ids))
+
+  tags = {
+    "Name" = "${element(var.envs, floor(count.index / var.instance_count-ps))}-instance-psuser-${count.index % var.instance_count-ps + 1}"
+    "Env"  = element(var.envs, floor(count.index / var.instance_count-ps))
+    "Platform"= "Linux"
+    "App"="psusers"
+  }
+}
+#####################################################################################################################################################
+resource "aws_instance" "env_instances-serco" {
+  count         = length(var.envs) * var.instance_count-serco
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_name  # Use your key pair for SSH access
+  
+
+  # Assign the instances to the appropriate subnets
+  subnet_id = element(var.subnet_ids, count.index % length(var.subnet_ids))
+
+  tags = {
+    "Name" = "${element(var.envs, floor(count.index / var.instance_count-serco))}-instance-serco-${count.index % var.instance_count-serco + 1}"
+    "Env"  = element(var.envs, floor(count.index / var.instance_count-serco))
+    "Platform"= "Linux"
+    "App"="serco"
+  }
+}
+####################################################################################################################################################
+resource "aws_instance" "env_instances-jenkins" {
+  count         = var.instance_count-jenkins
+  ami           = "ami-0583d8c7a9c35822c"
+  instance_type = var.instance_type
+  key_name      = var.key_name  # Use your key pair for SSH access
+  
+
+  # Assign the instances to the appropriate subnets
+  subnet_id = element(var.subnet_ids, count.index % length(var.subnet_ids))
+
+  tags = {
+    "Name" = "jenkins-instance-${count.index % var.instance_count-jenkins +1}"
+    "Platform"= "Linux"
+    "App"="jenkins"
+  }
+}
+########################################################################################################################################
+resource "aws_instance" "env_instances-datbase1" {
+  count         = length(var.envs3) * var.instance_count-datbase1
+  ami           = "ami-0583d8c7a9c35822c"
+  instance_type = var.instance_type
+  key_name      = var.key_name  # Use your key pair for SSH access
+  
+
+  # Assign the instances to the appropriate subnets
+  subnet_id = element(var.subnet_ids, count.index % length(var.subnet_ids))
+
+  tags = {
+    #"Name" = "database-instance-${count.index % var.instance_count-datbase1 +1}"
+    #"Name" = "${var.envs3}-database-instance-${count.index % var.instance_count-datbase1 +1}"
+    #"Name" = "${element(var.envs)}-instance-serco-${count.index % var.instance_count-datbase1 + 1}"
+    "Name" = "${element(var.envs3, floor(count.index / var.instance_count-datbase1))}-database-instance-${count.index % var.instance_count-datbase1 + 1}"
+    
+    "Platform"= "Linux"
+    "App"="datbase1"
+  }
+}
+##################################################################################################################
+resource "aws_instance" "env_instances-datbase2" {
+  count         = length(var.envs3) *  var.instance_count-datbase2
+  ami           = "ami-0583d8c7a9c35822c"
+  instance_type = var.instance_type
+  key_name      = var.key_name  # Use your key pair for SSH access
+  
+
+  # Assign the instances to the appropriate subnets
+  subnet_id = element(var.subnet_ids, count.index % length(var.subnet_ids))
+
+  tags = {
+    #"Name" = "database-instance-${count.index % var.instance_count-datbase2 +2}"
+    #"Name" = "${var.envs3}-database-instance-${count.index % var.instance_count-datbase2 +2}"
+    #"Name" = "${element(var.envs)}-instance-serco-${count.index % var.instance_count-datbase2 + 1}"
+    "Name" = "${element(var.envs3, floor(count.index / var.instance_count-datbase2))}-database-instance-${count.index % var.instance_count-datbase2 + 2}"
+    "Platform"= "Linux"
+    "App"="datbase2"
+  }
+}
+##################################################################################################
